@@ -87,7 +87,7 @@ Follow the steps below to run the project locally:
 ### 1️⃣ Clone or Download the Repository
 
 ```bash
-git clone https://github.com/your-username/VaxCare-v2.0.git
+git clone https://github.com/AtharavaSrivastava/VaxCare-v2.0
 cd VaxCare-v2.0
 ```
 
