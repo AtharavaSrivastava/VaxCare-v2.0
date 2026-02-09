@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaxCare - Your Personal Vaccine Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f7fafc;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            background: #edf2f7;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #5a67d8;
+            border-bottom: 3px solid #5a67d8;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #5a67d8;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(90, 103, 216, 0.4);
+        }
+
+        .card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #5a67d8;
+        }
+
+        .card h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 350px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification.success {
+            border-left: 5px solid #48bb78;
+        }
+
+        .notification.info {
+            border-left: 5px solid #4299e1;
+        }
+
+        .notification.warning {
+            border-left: 5px solid #ed8936;
+        }
+
+        .notification h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .vaccine-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .vaccine-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .vaccine-item:hover {
+            border-color: #5a67d8;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vaccine-item.completed {
+            background: #f0fff4;
+            border-color: #48bb78;
+        }
+
+        .vaccine-item h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .vaccine-item p {
+            color: #718096;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .welcome-message h3 {
+            color: #e67e22;
+            margin-bottom: 10px;
+        }
+
+        .drive-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .drive-card h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .drive-card .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .badge.vaccine {
+            background: #e6fffa;
+            color: #047857;
+        }
+
+        .badge.safety {
+            background: #fef3c7;
+            color: #d97706;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" style="margin-bottom: 20px;">
+    <h2>Account</h2>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <input type="email" id="authEmail" placeholder="Email" style="flex:1; min-width:200px;" />
+        <input type="password" id="authPassword" placeholder="Password" style="flex:1; min-width:200px;" />
+
+        <button onclick="handleRegister()">Register</button>
+        <button onclick="handleLogin()">Login</button>
+        <button onclick="handleLogout()" style="background:#e53e3e;">Logout</button>
+    </div>
+
+    <p id="authStatus" style="margin-top:10px; color:#4a5568;">Not logged in</p>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>💉 VaxCare</h1>
+            <p>Your trusted companion for vaccine management and child health</p>
+        </header>
+
+        <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('dashboard', event)">Dashboard</button>
+        <button class="nav-tab" onclick="switchTab('profile', event)">My Profile</button>
+        <button class="nav-tab" onclick="switchTab('newborn', event)">Newborn Care</button>
+        <button class="nav-tab" onclick="switchTab('vaccines', event)">My Vaccines</button>
+        <button class="nav-tab" onclick="switchTab('drives', event)">Nearby Drives</button>
+        </div>
+
+        <div class="content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="welcome-message">
+                    <h3>👋 Welcome to VaxCare!</h3>
+                    <p>We're here to help you stay on top of your family's vaccination schedule. Let's keep everyone healthy and protected!</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3 id="completedCount">0</h3>
+                        <p>Vaccines Completed</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="upcomingCount">0</h3>
+                        <p>Upcoming Vaccines</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="familyCount">0</h3>
+                        <p>Family Members</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📅 Upcoming Vaccines</h3>
+                    <div id="upcomingVaccines"></div>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ Health Alerts</h3>
+                    <div id="healthAlerts">
+                        <p style="color: #718096;">No active alerts. You're all set! 🎉</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content">
+                <div class="card">
+                    <h3>Personal Information</h3>
+                    <form id="profileForm" onsubmit="saveProfile(event)">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="userName" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth *</label>
+                            <input type="date" id="userDob" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            <select id="bloodGroup">
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Genetic Conditions (if any)</label>
+                            <textarea id="geneticInfo" placeholder="e.g., Family history of diabetes, heart disease, etc."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Known Allergies *</label>
+                            <textarea id="allergies" required placeholder="e.g., Penicillin, eggs, latex, etc."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Current Symptoms (if any)</label>
+                            <textarea id="symptoms" placeholder="Describe any symptoms you're experiencing"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Location (City) *</label>
+                            <input type="text" id="location" required placeholder="Enter your city">
+                        </div>
+                        <button type="submit" class="btn">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Newborn Tab -->
+            <div id="newborn" class="tab-content">
+                <div class="card">
+                    <h3>👶 Add Newborn Information</h3>
+                    <p style="color: #718096; margin-bottom: 20px;">Help us create a personalized vaccination schedule for your little one!</p>
+                    <form id="newbornForm" onsubmit="addNewborn(event)">
+                        <div class="form-group">
+                            <label>Baby's Name *</label>
+                            <input type="text" id="babyName" required placeholder="Enter baby's name">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth *</label>
+                            <input type="date" id="babyDob" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="babyGender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Birth Weight (kg)</label>
+                            <input type="number" step="0.1" id="birthWeight" placeholder="e.g., 3.2">
+                        </div>
+                        <div class="form-group">
+                            <label>Any Birth Complications?</label>
+                            <textarea id="complications" placeholder="Please describe if any"></textarea>
+                        </div>
+                        <button type="submit" class="btn">Add Baby & Generate Schedule</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Registered Children</h3>
+                    <div id="childrenList"></div>
+                </div>
+            </div>
+
+            <!-- Vaccines Tab -->
+            <div id="vaccines" class="tab-content">
+                <div class="card">
+                    <h3>Standard Vaccination Schedule</h3>
+                    <p style="color: #718096; margin-bottom: 20px;">Track your vaccination progress below. Check off vaccines as you receive them!</p>
+                    <div class="vaccine-list" id="vaccineList"></div>
+                </div>
+            </div>
+
+            <!-- Drives Tab -->
+            <div id="drives" class="tab-content">
+                <div class="card">
+                    <h3>🚑 Nearby Vaccine & Safety Drives</h3>
+                    <p style="color: #718096; margin-bottom: 20px;">Stay updated with vaccination camps and child safety programs in your area</p>
+                    <div id="drivesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <button class="notification-close" onclick="closeNotification()">×</button>
+        <h4 id="notifTitle"></h4>
+        <p id="notifMessage"></p>
+    </div>
+
+    <script>
+	const API_BASE = "http://localhost:3000";
+    let db = {
+    profile: null,
+    children: [],
+    vaccines: [],
+    completedVaccines: [],
+    drives: [],
+    vaccineSchedule: [],
+    vaccineRecords: [],
+    notifications: [],
+    dashboard: {}
+    };
+
+    function getToken() {
+    return localStorage.getItem("accessToken");
+    }
+
+    async function apiRequest(endpoint, method = "GET", body = null, auth = true) {
+    const headers = {
+        "Content-Type": "application/json"
+    };
+
+    if (auth) {
+        const token = getToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const options = { method, headers };
+
+    if (body) options.body = JSON.stringify(body);
+
+    const res = await fetch(`${API_BASE}${endpoint}`, options);
+    const data = await res.json();
+
+    if (!res.ok) {
+        console.error("API error:", data);
+        throw data;
+    }
+
+    return data;
+    }
+    async function registerUser(email, password) {
+    const data = await apiRequest("/api/auth/register", "POST", { email, password }, false);
+    localStorage.setItem("accessToken", data.tokens.accessToken);
+    return data;
+    }
+
+    async function loginUser(email, password) {
+    const data = await apiRequest("/api/auth/login", "POST", { email, password }, false);
+    localStorage.setItem("accessToken", data.tokens.accessToken);
+    return data;
+    }
+    function setAuthStatus(msg, color="gray") {
+    const el = document.getElementById("authStatus");
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color;
+    }
+
+    async function handleRegister() {
+    const email = document.getElementById("authEmail").value;
+    const password = document.getElementById("authPassword").value;
+
+    try {
+        await registerUser(email, password);
+        setAuthStatus("Registered + Logged in successfully ✅", "green");
+        await refreshAllData();
+    } catch (err) {
+        setAuthStatus("Register failed ❌ " + (err.error || ""), "red");
+    }
+    }
+
+async function handleLogin() {
+  const email = document.getElementById("authEmail").value;
+  const password = document.getElementById("authPassword").value;
+
+  try {
+    const data = await loginUser(email, password);
+
+    console.log("LOGIN RESPONSE:", data);
+    console.log("TOKEN SAVED:", localStorage.getItem("accessToken"));
+    localStorage.removeItem("vaxcareDB");
+
+    if (!localStorage.getItem("accessToken")) {
+      setAuthStatus("Login failed ❌ Token not stored", "red");
+      return;
+    }
+
+    setAuthStatus("Logged in successfully ✅", "green");
+    await refreshAllData();
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    setAuthStatus("Login failed ❌ " + (err.error || JSON.stringify(err)), "red");
+  }
+}
+
+
+    function handleLogout() {
+    localStorage.removeItem("accessToken");
+    setAuthStatus("Logged out", "gray");
+    }
+
+let refreshing = false;
+
+async function refreshAllData() {
+  if (refreshing) return;
+  refreshing = true;
+
+  console.log("refreshAllData() started");
+
+  try {
+    if (!getToken()) {
+      setAuthStatus("Not logged in", "gray");
+      return;
+    }
+
+    // -------------------------
+    // PROFILE
+    // -------------------------
+    try {
+      const profileRes = await apiRequest("/api/profile", "GET", null, true);
+      const p = profileRes.profile;
+
+      db.profile = {
+        name: p.fullName,
+        dob: p.dateOfBirth,
+        bloodGroup: p.bloodGroup,
+        geneticInfo: p.geneticConditions,
+        allergies: p.knownAllergies,
+        symptoms: p.currentSymptoms,
+        location: p.location
+      };
+
+      document.getElementById("userName").value = p.fullName || "";
+      document.getElementById("userDob").value = p.dateOfBirth
+        ? p.dateOfBirth.split("T")[0]
+        : "";
+      document.getElementById("bloodGroup").value = p.bloodGroup || "";
+      document.getElementById("geneticInfo").value = p.geneticConditions || "";
+      document.getElementById("allergies").value = p.knownAllergies || "";
+      document.getElementById("symptoms").value = p.currentSymptoms || "";
+      document.getElementById("location").value = p.location || "";
+
+      setAuthStatus("Logged in ✅ Profile loaded", "green");
+    } catch (err) {
+      console.log("Profile not loaded:", err);
+
+      if (getToken()) {
+        setAuthStatus("Logged in ✅ (Profile not created yet)", "orange");
+      } else {
+        setAuthStatus("Not logged in", "gray");
+      }
+    }
+
+    // -------------------------
+    // CHILDREN
+    // -------------------------
+    try {
+      const childrenRes = await apiRequest("/api/children", "GET", null, true);
+      db.children = childrenRes.children || [];
+      renderChildrenListAPI();
+    } catch (err) {
+      console.error("Failed to load children:", err);
+    }
+
+    // -------------------------
+    // VACCINE RECORDS
+    // -------------------------
+    try {
+      const recordRes = await apiRequest("/api/vaccines/records", "GET", null, true);
+      db.vaccineRecords = recordRes.vaccineRecords || [];
+    } catch (err) {
+      console.error("Failed to load vaccine records:", err);
+    }
+
+    // -------------------------
+    // VACCINE SCHEDULE
+    // -------------------------
+    try {
+      const scheduleRes = await apiRequest("/api/vaccines/schedule", "GET", null, true);
+      db.vaccineSchedule = scheduleRes.vaccines || [];
+      renderVaccineScheduleAPI();
+    } catch (err) {
+      console.error("Failed to load vaccine schedule:", err);
+    }
+
+    // -------------------------
+    // VACCINE DASHBOARD
+    // -------------------------
+    try {
+      const dashRes = await apiRequest("/api/vaccines/dashboard", "GET", null, true);
+      db.dashboard = dashRes.stats || {};
+      renderDashboardAPI(dashRes);
+    } catch (err) {
+      console.error("Failed to load dashboard:", err);
+    }
+
+    // -------------------------
+    // DRIVES (public endpoint)
+    // -------------------------
+    try {
+      const drivesRes = await apiRequest("/api/drives", "GET", null, false);
+      db.drives = drivesRes.drives || [];
+      renderDrivesAPI();
+    } catch (err) {
+      console.error("Failed to load drives:", err);
+    }
+
+  } catch (err) {
+    console.error("refreshAllData fatal error:", err);
+  } finally {
+    refreshing = false;
+    console.log("refreshAllData() finished");
+  }
+}
+
+
+        // Standard vaccine schedule
+        const standardVaccines = [
+            { name: "BCG", age: "At birth", description: "Protection against tuberculosis" },
+            { name: "Hepatitis B (1st dose)", age: "At birth", description: "First dose of Hepatitis B vaccine" },
+            { name: "OPV (0 dose)", age: "At birth", description: "Oral Polio Vaccine" },
+            { name: "Hepatitis B (2nd dose)", age: "6 weeks", description: "Second dose of Hepatitis B vaccine" },
+            { name: "DTaP (1st dose)", age: "6 weeks", description: "Diphtheria, Tetanus, Pertussis" },
+            { name: "IPV (1st dose)", age: "6 weeks", description: "Inactivated Polio Vaccine" },
+            { name: "Hib (1st dose)", age: "6 weeks", description: "Haemophilus influenzae type b" },
+            { name: "Rotavirus (1st dose)", age: "6 weeks", description: "Protection against rotavirus" },
+            { name: "PCV (1st dose)", age: "6 weeks", description: "Pneumococcal Conjugate Vaccine" },
+            { name: "DTaP (2nd dose)", age: "10 weeks", description: "Diphtheria, Tetanus, Pertussis" },
+            { name: "IPV (2nd dose)", age: "10 weeks", description: "Inactivated Polio Vaccine" },
+            { name: "Hib (2nd dose)", age: "10 weeks", description: "Haemophilus influenzae type b" },
+            { name: "Rotavirus (2nd dose)", age: "10 weeks", description: "Protection against rotavirus" },
+            { name: "PCV (2nd dose)", age: "10 weeks", description: "Pneumococcal Conjugate Vaccine" },
+            { name: "DTaP (3rd dose)", age: "14 weeks", description: "Diphtheria, Tetanus, Pertussis" },
+            { name: "IPV (3rd dose)", age: "14 weeks", description: "Inactivated Polio Vaccine" },
+            { name: "Hib (3rd dose)", age: "14 weeks", description: "Haemophilus influenzae type b" },
+            { name: "Rotavirus (3rd dose)", age: "14 weeks", description: "Protection against rotavirus" },
+            { name: "PCV (3rd dose)", age: "14 weeks", description: "Pneumococcal Conjugate Vaccine" },
+            { name: "MMR (1st dose)", age: "9-12 months", description: "Measles, Mumps, Rubella" },
+            { name: "Varicella (Chickenpox)", age: "12-15 months", description: "Protection against chickenpox" },
+            { name: "Hepatitis A (1st dose)", age: "12-23 months", description: "First dose of Hepatitis A vaccine" },
+            { name: "MMR (2nd dose)", age: "4-6 years", description: "Measles, Mumps, Rubella booster" },
+            { name: "DTaP (Booster)", age: "4-6 years", description: "Diphtheria, Tetanus, Pertussis booster" },
+            { name: "IPV (Booster)", age: "4-6 years", description: "Polio booster" },
+            { name: "HPV (1st dose)", age: "11-12 years", description: "Human Papillomavirus vaccine" },
+            { name: "Tdap (Booster)", age: "11-12 years", description: "Tetanus, Diphtheria, Pertussis booster" }
+        ];
+
+        // Sample drives
+        const sampleDrives = [
+            {
+                title: "Free Polio Vaccination Camp",
+                type: "vaccine",
+                location: "City General Hospital",
+                date: "November 15, 2025",
+                time: "9:00 AM - 4:00 PM"
+            },
+            {
+                title: "Child Safety Workshop",
+                type: "safety",
+                location: "Community Center, Downtown",
+                date: "November 20, 2025",
+                time: "10:00 AM - 2:00 PM"
+            },
+            {
+                title: "MMR Vaccination Drive",
+                type: "vaccine",
+                location: "District Health Center",
+                date: "November 25, 2025",
+                time: "8:00 AM - 5:00 PM"
+            }
+        ];
+
+        // Initialize
+        function init() {
+        refreshAllData();
+
+        // Show welcome notification
+        setTimeout(() => {
+            showNotification(
+            "Welcome! 🎉",
+            "Complete your profile to get personalized health recommendations!",
+            "info"
+            );
+        }, 1000);
+        }
+
+
+function switchTab(tabName, event) {
+  document.querySelectorAll(".tab-content").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  document.querySelectorAll(".nav-tab").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.getElementById(tabName).classList.add("active");
+
+  if (event && event.target) {
+    event.target.classList.add("active");
+  }
+}
+
+
+
+        async function saveProfile(event) {
+        event.preventDefault();
+
+        const profileData = {
+            fullName: document.getElementById("userName").value,
+            dateOfBirth: document.getElementById("userDob").value,
+            bloodGroup: document.getElementById("bloodGroup").value,
+            geneticConditions: document.getElementById("geneticInfo").value,
+            knownAllergies: document.getElementById("allergies").value,
+            currentSymptoms: document.getElementById("symptoms").value,
+            location: document.getElementById("location").value
+        };
+
+        try {
+            const res = await apiRequest("/api/profile", "POST", profileData, true);
+
+            console.log("PROFILE SAVE RESPONSE:", res);
+
+            setAuthStatus("Profile saved successfully ✅", "green");
+            showNotification("Profile Updated ✅", "Your profile has been saved to database!", "success");
+
+            await refreshAllData();
+
+        } catch (err) {
+            console.error("PROFILE SAVE ERROR:", err);
+            showNotification("Error ❌", err.error || "Failed to save profile", "warning");
+        }
+        }
+
+
+
+async function addNewborn(e) {
+  e.preventDefault();
+
+  const complicationsValue = document.getElementById("complications").value.trim();
+
+  const babyData = {
+    name: document.getElementById("babyName").value,
+    dateOfBirth: document.getElementById("babyDob").value,
+    gender: document.getElementById("babyGender").value,
+    birthWeight: document.getElementById("birthWeight").value.trim() || null,
+    birthComplications: document.getElementById("complications").value || null
+  };
+
+  try {
+    const res = await apiRequest("/api/children", "POST", babyData, true);
+
+    showNotification("✅ Child added successfully!", "${name} has been added.","success");
+    document.getElementById("newbornForm").reset();
+
+    await refreshAllData();
+  } catch (err) {
+  console.error("ADD CHILD ERROR:", err);
+  showNotification("Failed: " + JSON.stringify(err.details));
+  }
+}
+
+
+
+function calcAgeInWeeks(dateOfBirth) {
+  if (!dateOfBirth) return "N/A";
+
+  const dob = new Date(dateOfBirth);
+  const now = new Date();
+
+  const diffMs = now - dob;
+  const weeks = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+
+  return weeks;
+}
+
+function renderChildrenListAPI() {
+  const container = document.getElementById("childrenList");
+
+  if (!db.children || db.children.length === 0) {
+    container.innerHTML =
+      '<p style="color: #718096;">No children registered yet. Add your newborn to get started!</p>';
+    return;
+  }
+
+  container.innerHTML = db.children
+    .map(
+      (child) => `
+        <div class="drive-card">
+          <h4>${child.name}</h4>
+          <p><strong>Date of Birth:</strong> ${
+            child.dateOfBirth ? child.dateOfBirth.split("T")[0] : "N/A"
+          }</p>
+          <p><strong>Gender:</strong> ${child.gender}</p>
+          <p><strong>Age in Weeks:</strong> ${calcAgeInWeeks(child.dateOfBirth)}</p>
+        </div>
+      `
+    )
+    .join("");
+}
+
+
+ async function recordVaccine(vaccineId) {
+  try {
+    if (!db.children || db.children.length === 0) {
+      showNotification("No child found. Please add a newborn first.");
+      return;
+    }
+
+    const childId = db.children[0].id; // TEMP: first child
+
+    const body = {
+      childId: childId,
+      vaccineId: vaccineId,
+      administeredDate: new Date().toISOString().split("T")[0],
+      healthcareProvider: "Self Recorded",
+      batchNumber: "N/A",
+      notes: "Marked completed from frontend"
+    };
+
+    const res = await apiRequest("/api/vaccines/record", "POST", body, true);
+
+    showNotification("Success ✅", res.message || "Vaccine recorded successfully!", "success");
+
+
+    // ✅ AUTO REFRESH EVERYTHING
+    await refreshAllData();
+
+  } catch (err) {
+    console.error("recordVaccine error:", err);
+    showNotification("Error ❌", err.error || "Failed to record vaccine", "warning");
+  }
+}
+
+
+
+        
+function renderVaccineScheduleAPI() {
+  const container = document.getElementById("vaccineList");
+
+  if (!db.vaccineSchedule || db.vaccineSchedule.length === 0) {
+    container.innerHTML = `<p style="color:#718096;">No vaccine schedule loaded.</p>`;
+    return;
+  }
+
+  container.innerHTML = db.vaccineSchedule.map(vaccine => {
+    const alreadyDone = db.vaccineRecords?.some(
+      (r) => r.sequence_order === vaccine.sequence_order
+    );
+
+    return `
+      <div class="vaccine-item ${alreadyDone ? "completed" : ""}">
+        <h4>${vaccine.name}</h4>
+        <p><strong>Recommended Age:</strong> ${vaccine.recommended_age}</p>
+        <p>${vaccine.description || ""}</p>
+
+        ${
+          alreadyDone
+            ? `<p style="color: green; font-weight: bold;">✅ Recorded</p>`
+            : `<button onclick="recordVaccine('${vaccine.id}')"
+                style="margin-top:10px;padding:8px 12px;background:#3182ce;color:white;border:none;border-radius:6px;cursor:pointer;">
+                Mark as Completed
+              </button>`
+        }
+      </div>
+    `;
+  }).join("");
+}
+
+
+
+function renderVaccineRecordsAPI() {
+  const container = document.getElementById("recordedVaccinesList");
+
+  if (!db.vaccineRecords || db.vaccineRecords.length === 0) {
+    container.innerHTML = `<p style="color:#718096;">No vaccines recorded yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = db.vaccineRecords.map(r => `
+    <div class="vaccine-item completed">
+      <h4>${r.vaccine_name}</h4>
+      <p><strong>Date:</strong> ${r.administered_date?.split("T")[0] || "N/A"}</p>
+      <p><strong>Provider:</strong> ${r.healthcare_provider || "N/A"}</p>
+    </div>
+  `).join("");
+}
+
+
+
+function renderDrivesAPI() {
+  const container = document.getElementById("drivesList");
+
+  if (!db.drives || db.drives.length === 0) {
+    container.innerHTML =
+      '<p style="color: #718096;">No drives available right now.</p>';
+    return;
+  }
+
+  container.innerHTML = db.drives
+    .map(
+      (drive) => `
+        <div class="drive-card">
+          <span class="badge ${drive.type}">
+            ${drive.type === "vaccine" ? "💉 Vaccine Drive" : "🛡️ Safety Drive"}
+          </span>
+
+          <h4>${drive.title}</h4>
+          <p><strong>📍 Location:</strong> ${drive.location}</p>
+          <p><strong>🏥 Address:</strong> ${drive.address}</p>
+          <p><strong>📅 Date:</strong> ${drive.date.split("T")[0]}</p>
+          <p><strong>🕐 Time:</strong> ${drive.startTime} - ${drive.endTime}</p>
+          <p><strong>Organizer:</strong> ${drive.organizer}</p>
+          <p><strong>Contact:</strong> ${drive.contactInfo}</p>
+        </div>
+      `
+    )
+    .join("");
+}
+
+
+function renderDashboardAPI(dashRes) {
+  if (!dashRes || !dashRes.stats) return;
+
+  document.getElementById("completedCount").textContent =
+    dashRes.stats.completedVaccines;
+
+  document.getElementById("upcomingCount").textContent =
+    dashRes.stats.upcomingVaccines;
+
+  document.getElementById("familyCount").textContent =
+    dashRes.stats.familyMembers;
+
+  const upcomingContainer = document.getElementById("upcomingVaccines");
+
+  if (!dashRes.upcomingVaccines || dashRes.upcomingVaccines.length === 0) {
+    upcomingContainer.innerHTML =
+      '<p style="color: #718096;">No upcoming vaccines 🎉</p>';
+    return;
+  }
+
+  upcomingContainer.innerHTML = dashRes.upcomingVaccines
+    .slice(0, 3)
+    .map(
+      (v) => `
+        <div class="drive-card">
+          <h4>${v.name}</h4>
+          <p><strong>Recommended Age:</strong> ${v.recommended_age}</p>
+          <p>${v.description || ""}</p>
+        </div>
+      `
+    )
+    .join("");
+}
+
+
+
+        function checkSymptoms() {
+            if (db.profile && db.profile.symptoms) {
+                const symptoms = db.profile.symptoms.toLowerCase();
+                if (symptoms.includes('fever') || symptoms.includes('cough') || symptoms.includes('rash')) {
+                    setTimeout(() => {
+                        showNotification('Health Alert ⚠️', 'Based on your symptoms, we recommend consulting a healthcare provider before getting vaccinated.', 'warning');
+                    }, 2000);
+                }
+            }
+        }
+
+        function checkForDriveNotifications() {
+            if (Math.random() > 0.7 && db.profile) {
+                const drive = sampleDrives[Math.floor(Math.random() * sampleDrives.length)];
+                showNotification('New Drive Alert! 📢', `${drive.title} happening at ${drive.location} on ${drive.date}`, 'info');
+            }
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const notif = document.getElementById('notification');
+            document.getElementById('notifTitle').textContent = title;
+            document.getElementById('notifMessage').textContent = message;
+            
+            notif.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                closeNotification();
+            }, 8000);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification').classList.remove('show');
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('vaxcareDB', JSON.stringify(db));
+            } catch (e) {
+                console.log('Storage not available');
+            }
+        }
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('vaxcareDB');
+                if (saved) {
+                    Object.assign(db, JSON.parse(saved));
+                    
+                    // Populate profile form
+                    if (db.profile) {
+                        document.getElementById('userName').value = db.profile.name || '';
+                        document.getElementById('userDob').value = db.profile.dob || '';
+                        document.getElementById('bloodGroup').value = db.profile.bloodGroup || '';
+                        document.getElementById('geneticInfo').value = db.profile.geneticInfo || '';
+                        document.getElementById('allergies').value = db.profile.allergies || '';
+                        document.getElementById('symptoms').value = db.profile.symptoms || '';
+                        document.getElementById('location').value = db.profile.location || '';
+                    }
+                    
+                    renderChildrenList();
+                }
+            } catch (e) {
+                console.log('Could not load data');
+            }
+        }
+
+        // Initialize on load
+        window.onload = function () {
+        init();
+        };
+        window.switchTab = switchTab;
+        window.init = init;
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+        window.saveProfile = saveProfile;
+        window.addNewborn = addNewborn;
+        window.recordVaccine = recordVaccine;
+        window.renderVaccineRecordsAPI = renderVaccineRecordsAPI;
+
+    </script>
+</body>
+</html>

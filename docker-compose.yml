@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vaxcare_db
+    environment:
+      POSTGRES_DB: vaxcare_db
+      POSTGRES_USER: vaxcare_user
+      POSTGRES_PASSWORD: vaxcare_secure_password_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - vaxcare_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vaxcare_user -d vaxcare_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # VaxCare Backend API
+  backend:
+    build: .
+    container_name: vaxcare_backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: vaxcare_db
+      DB_USER: vaxcare_user
+      DB_PASSWORD: vaxcare_secure_password_2024
+      JWT_SECRET: vaxcare_super_secure_jwt_secret_key_2024_production
+      JWT_REFRESH_SECRET: vaxcare_super_secure_refresh_secret_key_2024_production
+      JWT_EXPIRE: 24h
+      JWT_REFRESH_EXPIRE: 7d
+      PORT: 3000
+      BCRYPT_ROUNDS: 12
+      RATE_LIMIT_WINDOW: 15
+      RATE_LIMIT_MAX: 100
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8080,https://yourdomain.com
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vaxcare_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./logs:/app/logs
+
+  # Redis for session management (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: vaxcare_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - vaxcare_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  vaxcare_network:
+    driver: bridge
